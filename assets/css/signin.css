@@ -1,0 +1,352 @@
+/* ============================================================
+   SalahHomty — Sign In Page Stylesheet
+   Author  : SalahHomty
+   Version : 2.0.0
+   Depends : style.css (must be loaded before this file)
+   ============================================================ */
+
+
+/* ── Page Layout ─────────────────────────────────────────── */
+body {
+  background-color: #1c1c1e;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+
+/* ── Navbar Override ─────────────────────────────────────── */
+.navbar {
+  background-color: #111111;
+  border-bottom: 1px solid #2a2a2a;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navbar__report-btn {
+  background-color: var(--color-primary);
+  color: var(--color-dark);
+  font-size: 14px;
+  font-weight: 700;
+  padding: 8px 18px;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color var(--transition-fast);
+}
+
+.navbar__report-btn:hover {
+  background-color: #ffe066;
+}
+
+
+/* ── Main Wrapper ────────────────────────────────────────── */
+.signin-main {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: calc(100vh - 72px);
+}
+
+
+/* ── Left Panel — Branding ───────────────────────────────── */
+.signin-panel {
+  background-color: var(--color-primary);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 80px 64px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Decorative circle shapes */
+.signin-panel::before,
+.signin-panel::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.06);
+}
+
+.signin-panel::before {
+  width: 400px;
+  height: 400px;
+  bottom: -120px;
+  left: -80px;
+}
+
+.signin-panel::after {
+  width: 240px;
+  height: 240px;
+  top: -60px;
+  right: -60px;
+}
+
+.signin-panel__title {
+  font-size: clamp(32px, 4vw, 52px);
+  font-weight: 700;
+  color: var(--color-dark);
+  line-height: 1.1;
+  letter-spacing: -1px;
+  margin-bottom: 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.signin-panel__subtitle {
+  font-size: 17px;
+  color: rgba(0, 0, 0, 0.65);
+  line-height: 1.6;
+  max-width: 340px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Feature list */
+.signin-panel__features {
+  list-style: none;
+  margin-top: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: relative;
+  z-index: 1;
+}
+
+.signin-panel__feature {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-dark);
+}
+
+.signin-panel__feature-dot {
+  width: 10px;
+  height: 10px;
+  background-color: var(--color-dark);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+
+/* ── Right Panel — Form ──────────────────────────────────── */
+.signin-form-panel {
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 80px 64px;
+}
+
+.signin-card {
+  width: 100%;
+  max-width: 400px;
+}
+
+/* ── Card Header ─────────────────────────────────────────── */
+.signin-card__header {
+  margin-bottom: 36px;
+}
+
+.signin-card__title {
+  font-size: 30px;
+  font-weight: 700;
+  color: #111;
+  margin-bottom: 8px;
+  letter-spacing: -0.5px;
+}
+
+.signin-card__subtitle {
+  font-size: 15px;
+  color: #666;
+}
+
+.signin-card__subtitle a {
+  color: var(--color-dark);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.signin-card__subtitle a:hover {
+  color: #555;
+}
+
+/* ── Divider ─────────────────────────────────────────────── */
+.signin-card__divider {
+  height: 1px;
+  background-color: #e8e8e8;
+  margin-bottom: 32px;
+}
+
+/* ── Form Group ──────────────────────────────────────────── */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group__label {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 8px;
+  letter-spacing: 0.2px;
+}
+
+.form-group__input {
+  display: block;
+  width: 100%;
+  padding: 13px 16px;
+  font-size: 15px;
+  font-family: var(--font-base);
+  color: #111;
+  background-color: #f8f8f8;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  outline: none;
+  transition:
+    border-color var(--transition-fast),
+    background-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.form-group__input:focus {
+  border-color: var(--color-dark);
+  background-color: #ffffff;
+  box-shadow: 0 0 0 4px rgba(26, 26, 26, 0.08);
+}
+
+.form-group__input::placeholder {
+  color: #aaa;
+}
+
+/* ── Actions ─────────────────────────────────────────────── */
+.signin-card__actions {
+  margin-top: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Primary button */
+.btn-primary {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  background-color: var(--color-dark);
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: var(--font-base);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  letter-spacing: 0.3px;
+  transition:
+    background-color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.btn-primary:hover {
+  background-color: #333;
+  transform: translateY(-1px);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+/* Secondary button */
+.btn-secondary {
+  display: block;
+  width: 100%;
+  padding: 13px;
+  background-color: transparent;
+  color: var(--color-dark);
+  font-size: 15px;
+  font-weight: 600;
+  font-family: var(--font-base);
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  cursor: pointer;
+  letter-spacing: 0.2px;
+  transition:
+    border-color var(--transition-fast),
+    background-color var(--transition-fast);
+  text-align: center;
+  text-decoration: none;
+}
+
+.btn-secondary:hover {
+  border-color: var(--color-dark);
+  background-color: #f8f8f8;
+}
+
+/* ── Footer note under form ──────────────────────────────── */
+.signin-card__note {
+  margin-top: 24px;
+  font-size: 13px;
+  color: #999;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.signin-card__note a {
+  color: #555;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+
+/* ── Page Footer Override ────────────────────────────────── */
+.footer {
+  background-color: #111111;
+  border-top: 3px solid var(--color-primary);
+}
+
+
+/* ── Responsive — Tablet ─────────────────────────────────── */
+@media (max-width: 900px) {
+  .signin-main {
+    grid-template-columns: 1fr;
+  }
+
+  .signin-panel {
+    padding: 52px 40px;
+    min-height: auto;
+  }
+
+  .signin-panel__features {
+    display: none;
+  }
+
+  .signin-form-panel {
+    padding: 52px 32px;
+  }
+}
+
+/* ── Responsive — Mobile ─────────────────────────────────── */
+@media (max-width: 560px) {
+  .signin-panel {
+    padding: 40px 24px;
+  }
+
+  .signin-panel__title {
+    font-size: 28px;
+  }
+
+  .signin-form-panel {
+    padding: 40px 24px;
+  }
+
+  .navbar__report-btn {
+    display: none;
+  }
+}
