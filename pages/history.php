@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SalahHomty – Historique des réclamations</title>
+  <title>SalahHomty – Complaint History</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="../assets/css/historic.css" />
+  <link rel="stylesheet" href="../assets/css/history.css" />
   <link rel="stylesheet" href="../assets/css/style.css" />
 </head>
 <body>
@@ -17,11 +17,11 @@
     <span class="logo-text">Salah<span>Homty</span></span>
   </a>
   <div class="nav-links">
-    <a href="#" class="btn-report">Report a problem</a>
-    <a href="#">Sign in</a>
-    <a href="#" id="nav-historic" class="active">Historique</a>
-    <a href="#">Local alerts</a>
-    <a href="#">Help</a>
+    <a href="../index.php" class="btn-report">Report a problem</a>
+    <a href="signin.php">Sign in</a>
+    <a href="history.php" id="nav-historic" class="active">History</a>
+    
+    <a href="helppage.php">Help</a>
   </div>
 </nav>
 
@@ -31,14 +31,14 @@
   <!-- Header -->
   <div class="page-header">
     <div>
-      <h1>Historique des réclamations</h1>
-      <p>Suivez toutes les réclamations soumises et leur état de traitement.</p>
+      <h1>Complaint History</h1>
+      <p>Track all submitted complaints and their processing status.</p>
     </div>
     <button class="export-btn">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
       </svg>
-      Exporter CSV
+      Export CSV
     </button>
   </div>
 
@@ -47,27 +47,27 @@
     <div class="stat-card all">
       <div class="stat-label">Total</div>
       <div class="stat-value">128</div>
-      <div class="stat-sub">réclamations</div>
+      <div class="stat-sub">complaints</div>
     </div>
     <div class="stat-card open">
-      <div class="stat-label">Ouvertes</div>
+      <div class="stat-label">Open</div>
       <div class="stat-value">34</div>
-      <div class="stat-sub">en attente</div>
+      <div class="stat-sub">pending</div>
     </div>
     <div class="stat-card prog">
-      <div class="stat-label">En cours</div>
+      <div class="stat-label">In progress</div>
       <div class="stat-value">51</div>
-      <div class="stat-sub">traitées</div>
+      <div class="stat-sub">processing</div>
     </div>
     <div class="stat-card done">
-      <div class="stat-label">Résolues</div>
+      <div class="stat-label">Resolved</div>
       <div class="stat-value">37</div>
-      <div class="stat-sub">clôturées</div>
+      <div class="stat-sub">closed</div>
     </div>
     <div class="stat-card over">
-      <div class="stat-label">En retard</div>
+      <div class="stat-label">Overdue</div>
       <div class="stat-value">6</div>
-      <div class="stat-sub">dépassé le délai</div>
+      <div class="stat-sub">deadline exceeded</div>
     </div>
   </div>
 
@@ -77,8 +77,8 @@
       <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
     </svg>
     <div>
-      <strong>6 réclamations ont dépassé le délai de traitement.</strong>
-      Vous pouvez les transférer à un autre agent ou service via le bouton « Transférer » dans la liste ci-dessous.
+      <strong>6 complaints have exceeded the processing deadline.</strong>
+      You can transfer them to another agent or service using the "Transfer" button in the list below.
     </div>
   </div>
 
@@ -88,23 +88,23 @@
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
       </svg>
-      <input type="text" id="searchInput" placeholder="Rechercher par ID, description, adresse…" oninput="filterTable()" />
+      <input type="text" id="searchInput" placeholder="Search by ID, description, address…" oninput="filterTable()" />
     </div>
     <select class="filter-select" id="filterStatus" onchange="filterTable()">
-      <option value="">Tous les statuts</option>
-      <option value="Ouverte">Ouverte</option>
-      <option value="En cours">En cours</option>
-      <option value="Résolue">Résolue</option>
-      <option value="Transférée">Transférée</option>
-      <option value="En retard">En retard</option>
+      <option value="">All statuses</option>
+      <option value="Open">Open</option>
+      <option value="In progress">In progress</option>
+      <option value="Resolved">Resolved</option>
+      <option value="Transferred">Transferred</option>
+      <option value="Overdue">Overdue</option>
     </select>
     <select class="filter-select" id="filterCat" onchange="filterTable()">
-      <option value="">Toutes catégories</option>
-      <option value="Voirie">Voirie</option>
-      <option value="Éclairage">Éclairage</option>
+      <option value="">All categories</option>
+      <option value="Roadway">Roadway</option>
+      <option value="Lighting">Lighting</option>
       <option value="Graffiti">Graffiti</option>
-      <option value="Déchets">Déchets</option>
-      <option value="Autre">Autre</option>
+      <option value="Waste">Waste</option>
+      <option value="Other">Other</option>
     </select>
   </div>
 
@@ -114,11 +114,11 @@
       <thead>
         <tr>
           <th>ID</th>
-          <th>Catégorie</th>
+          <th>Category</th>
           <th>Description</th>
-          <th>Adresse</th>
-          <th>Date soumission</th>
-          <th>Statut</th>
+          <th>Address</th>
+          <th>Submission date</th>
+          <th>Status</th>
           <th>Action</th>
         </tr>
       </thead>
@@ -134,30 +134,30 @@
 
 <script>
   const claims = [
-    { id:"REC-0041", cat:"Voirie",    desc:"Nid de poule dangereux",           addr:"Av. Habib Bourguiba, 12",    date:"12 mars 2025",   status:"En retard" },
-    { id:"REC-0040", cat:"Graffiti",  desc:"Tags sur mur de l'école",          addr:"Rue de la République, 5",    date:"11 mars 2025",   status:"Ouverte" },
-    { id:"REC-0039", cat:"Éclairage", desc:"Lampadaire éteint depuis 3 jours", addr:"Bd du 7 novembre, 44",       date:"10 mars 2025",   status:"En cours" },
-    { id:"REC-0038", cat:"Déchets",   desc:"Dépôt sauvage près du parc",       addr:"Allée des Jasmins, 3",       date:"9 mars 2025",    status:"Résolue" },
-    { id:"REC-0037", cat:"Voirie",    desc:"Trottoir fissuré, risque de chute", addr:"Rue Ibn Khaldoun, 21",       date:"8 mars 2025",    status:"Transférée" },
-    { id:"REC-0036", cat:"Éclairage", desc:"Feux de carrefour défaillants",    addr:"Av. de la Liberté, 78",      date:"7 mars 2025",    status:"En retard" },
-    { id:"REC-0035", cat:"Graffiti",  desc:"Dégradation façade immeuble",      addr:"Rue Alain Savary, 9",        date:"6 mars 2025",    status:"En cours" },
-    { id:"REC-0034", cat:"Déchets",   desc:"Bacs renversés non ramassés",       addr:"Rue des Orangers, 17",       date:"5 mars 2025",    status:"Résolue" },
-    { id:"REC-0033", cat:"Voirie",    desc:"Signalisation routière manquante", addr:"Av. Mohamed V, 33",          date:"4 mars 2025",    status:"Ouverte" },
-    { id:"REC-0032", cat:"Autre",     desc:"Banc public cassé au jardin",       addr:"Pl. du 14 janvier, 1",       date:"3 mars 2025",    status:"En retard" },
-    { id:"REC-0031", cat:"Voirie",    desc:"Caniveau bouché inondation",        addr:"Impasse du Marché, 2",       date:"2 mars 2025",    status:"En cours" },
-    { id:"REC-0030", cat:"Éclairage", desc:"Poteaux électriques inclinés",      addr:"Bd de la Terre, 66",         date:"1 mars 2025",    status:"Résolue" },
+    { id:"REC-0041", cat:"Roadway",    desc:"Dangerous pothole",                  addr:"Habib Bourguiba Ave, 12",    date:"Mar 12, 2025",   status:"Overdue" },
+    { id:"REC-0040", cat:"Graffiti",  desc:"Tags on school wall",                 addr:"Republic Street, 5",        date:"Mar 11, 2025",   status:"Open" },
+    { id:"REC-0039", cat:"Lighting",  desc:"Streetlight out for 3 days",          addr:"November 7 Blvd, 44",       date:"Mar 10, 2025",   status:"In progress" },
+    { id:"REC-0038", cat:"Waste",     desc:"Illegal dumping near park",           addr:"Jasmine Lane, 3",           date:"Mar 9, 2025",    status:"Resolved" },
+    { id:"REC-0037", cat:"Roadway",   desc:"Cracked sidewalk, trip hazard",       addr:"Ibn Khaldoun Street, 21",   date:"Mar 8, 2025",    status:"Transferred" },
+    { id:"REC-0036", cat:"Lighting",  desc:"Intersection traffic lights failing", addr:"Freedom Ave, 78",            date:"Mar 7, 2025",    status:"Overdue" },
+    { id:"REC-0035", cat:"Graffiti",  desc:"Building facade vandalism",           addr:"Alain Savary Street, 9",    date:"Mar 6, 2025",    status:"In progress" },
+    { id:"REC-0034", cat:"Waste",     desc:"Overturned bins not collected",       addr:"Orange Trees Street, 17",   date:"Mar 5, 2025",    status:"Resolved" },
+    { id:"REC-0033", cat:"Roadway",   desc:"Missing road signage",                addr:"Mohamed V Ave, 33",         date:"Mar 4, 2025",    status:"Open" },
+    { id:"REC-0032", cat:"Other",     desc:"Broken public bench in garden",       addr:"January 14 Square, 1",      date:"Mar 3, 2025",    status:"Overdue" },
+    { id:"REC-0031", cat:"Roadway",   desc:"Clogged drain causing flooding",      addr:"Market Alley, 2",           date:"Mar 2, 2025",    status:"In progress" },
+    { id:"REC-0030", cat:"Lighting",  desc:"Leaning utility poles",               addr:"Earth Blvd, 66",            date:"Mar 1, 2025",    status:"Resolved" },
   ];
 
   const statusClass = {
-    "Ouverte":     "s-open open",
-    "En cours":    "s-progress progress",
-    "Résolue":     "s-resolved resolved",
-    "Transférée":  "s-transferred transferred",
-    "En retard":   "s-overdue overdue",
+    "Open":          "s-open open",
+    "In progress":   "s-progress progress",
+    "Resolved":      "s-resolved resolved",
+    "Transferred":   "s-transferred transferred",
+    "Overdue":       "s-overdue overdue",
   };
 
   const catIcon = {
-    "Voirie": "🛣️", "Éclairage": "💡", "Graffiti": "🎨", "Déchets": "🗑️", "Autre": "📌"
+    "Roadway": "🛣️", "Lighting": "💡", "Graffiti": "🎨", "Waste": "🗑️", "Other": "📌"
   };
 
   let currentPage = 1;
@@ -187,11 +187,11 @@
         <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
         </svg>
-        <p>Aucune réclamation trouvée</p></div></td></tr>`;
+        <p>No complaints found</p></div></td></tr>`;
     } else {
       tbody.innerHTML = page.map(c => {
         const [sc, dc] = statusClass[c.status].split(' ');
-        const isOverdue = c.status === "En retard";
+        const isOverdue = c.status === "Overdue";
         return `<tr>
           <td><span class="claim-id">${c.id}</span></td>
           <td><span class="category-badge">${catIcon[c.cat] || '📌'} ${c.cat}</span></td>
@@ -201,8 +201,8 @@
           <td><span class="status-badge ${sc}"><span class="dot ${dc}"></span>${c.status}</span></td>
           <td>
             ${isOverdue
-              ? `<button class="action-btn transfer-btn" onclick="transfer('${c.id}')">⇄ Transférer</button>`
-              : `<button class="action-btn" onclick="view('${c.id}')">Voir détails</button>`}
+              ? `<button class="action-btn transfer-btn" onclick="transfer('${c.id}')">⇄ Transfer</button>`
+              : `<button class="action-btn" onclick="view('${c.id}')">View details</button>`}
           </td>
         </tr>`;
       }).join('');
@@ -211,7 +211,7 @@
     // pagination info
     const total = filtered.length;
     document.getElementById('paginationInfo').textContent =
-      `Affichage ${Math.min(start+1,total)}–${Math.min(start+perPage,total)} sur ${total} réclamations`;
+      `Showing ${Math.min(start+1,total)}–${Math.min(start+perPage,total)} of ${total} complaints`;
 
     // page buttons
     const pages = Math.ceil(total / perPage);
@@ -227,12 +227,12 @@
   }
 
   function view(id) {
-    alert(`Détails de la réclamation ${id}\n(Ouvrir le panneau de détail ici)`);
+    alert(`Details of complaint ${id}\n(Open detail panel here)`);
   }
 
   function transfer(id) {
-    if (confirm(`Transférer la réclamation ${id} à un autre agent ou service ?`)) {
-      alert(`Réclamation ${id} transférée avec succès.`);
+    if (confirm(`Transfer complaint ${id} to another agent or service?`)) {
+      alert(`Complaint ${id} successfully transferred.`);
     }
   }
 
