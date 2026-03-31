@@ -31,8 +31,8 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
 }
 
 try {
-    // ── Chercher l'utilisateur par email ──
-    $stmt = $pdo->prepare("SELECT id, name, email, password FROM users WHERE email = :email LIMIT 1");
+    // ── Chercher l'utilisateur par email (role included) ──
+    $stmt = $pdo->prepare("SELECT id, name, email, password, role FROM users WHERE email = :email LIMIT 1");
     $stmt->execute([':email' => strtolower($email)]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -43,16 +43,13 @@ try {
     }
 
     // ── Vérification du mot de passe ──
-    // Supporte : hash bcrypt (password_hash) ET mot de passe en clair (legacy)
     $passwordOk = false;
 
     if (password_verify($password, $user['password'])) {
-        // Mot de passe hashé correct
         $passwordOk = true;
     } elseif ($user['password'] === $password) {
-        // Legacy : mot de passe stocké en clair (migration)
+        // Legacy: re-hash plaintext password
         $passwordOk = true;
-        // Re-hasher automatiquement pour sécuriser
         $newHash = password_hash($password, PASSWORD_BCRYPT);
         $upd = $pdo->prepare("UPDATE users SET password = :hash WHERE id = :id");
         $upd->execute([':hash' => $newHash, ':id' => $user['id']]);
@@ -64,12 +61,25 @@ try {
     }
 
     // ── Succès : créer la session ──
-    session_regenerate_id(true); // Prevent session fixation
+    session_regenerate_id(true);
     $_SESSION['user_id']    = $user['id'];
     $_SESSION['user_name']  = $user['name'];
     $_SESSION['user_email'] = $user['email'];
+    $_SESSION['user_role']  = $user['role'];  // Store role in session
 
-    header("Location: ../index.php");
+    // ── Redirection selon le rôle ──
+    switch ($user['role']) {
+        case 'admin':
+            header("Location: ../admin/reports.php");
+            break;
+        case 'agent':
+            header("Location: ../agent/index.php");
+            break;
+        case 'citizen':
+        default:
+            header("Location: ../index.php");
+            break;
+    }
     exit;
 
 } catch (PDOException $e) {

@@ -2,7 +2,7 @@
 // actions/submit_report.php  (updated with auto-assignment)
 session_start();
 require_once '../config/database.php';
-require_once 'auto_assign.php';  // auto-assignment helper
+require_once 'auto_assign.php';  
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: ../index.php');
@@ -21,7 +21,7 @@ if ($location === '' && $latitude === null) {
     exit;
 }
 
-// ── Handle image upload ──
+
 $imagePath = null;
 if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
     $file    = $_FILES['image'];
@@ -47,7 +47,7 @@ if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
     $imagePath = 'uploads/reports/' . $filename;
 }
 
-// ── Insert report ──
+// insert reports
 try {
     $stmt = $pdo->prepare("
         INSERT INTO reports (user_id, image, latitude, longitude, description, category_id, status, created_at)
@@ -64,7 +64,7 @@ try {
 
     $newReportId = (int)$pdo->lastInsertId();
 
-    // ── Auto-assign to appropriate agent ──
+    // agin to approprate agent
     autoAssignReport($pdo, $newReportId);
 
     header('Location: ../index.php?success=1');
