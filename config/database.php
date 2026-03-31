@@ -5,7 +5,7 @@
 $host   = 'localhost';
 $dbname = 'salahhomty';
 $user   = 'root';
-$pass   = ''; // vide par défaut sur XAMPP
+$pass   = ''; 
 
 try {
     $pdo = new PDO(
