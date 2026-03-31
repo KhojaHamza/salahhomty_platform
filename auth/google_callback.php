@@ -11,20 +11,20 @@ define('GOOGLE_REDIRECT_URI',  'http://localhost/salahhomty_platform/auth/google
 
 // ── CSRF check ──
 if (!isset($_GET['state']) || $_GET['state'] !== ($_SESSION['oauth_state'] ?? '')) {
-    header('Location: ../pages/signin.php?error=oauth_state_mismatch');
+    header('Location: ../user/signin.php?error=oauth_state_mismatch');
     exit;
 }
 unset($_SESSION['oauth_state']);
 
 // ── Error from Google ──
 if (isset($_GET['error'])) {
-    header('Location: ../pages/signin.php?error=google_cancelled');
+    header('Location: ../user/signin.php?error=google_cancelled');
     exit;
 }
 
 $code = $_GET['code'] ?? '';
 if (empty($code)) {
-    header('Location: ../pages/signin.php?error=google_no_code');
+    header('Location: ../user/signin.php?error=google_no_code');
     exit;
 }
 
@@ -47,7 +47,7 @@ $tokenData = json_decode($tokenResponse, true);
 
 if (empty($tokenData['access_token'])) {
     error_log('Google OAuth token error: ' . print_r($tokenData, true));
-    header('Location: ../pages/signin.php?error=google_token_failed');
+    header('Location: ../user/signin.php?error=google_token_failed');
     exit;
 }
 
@@ -64,7 +64,7 @@ $userInfoResponse = file_get_contents(
 $googleUser = json_decode($userInfoResponse, true);
 
 if (empty($googleUser['email'])) {
-    header('Location: ../pages/signin.php?error=google_no_email');
+    header('Location: ../user/signin.php?error=google_no_email');
     exit;
 }
 
@@ -106,7 +106,7 @@ try {
 
 } catch (PDOException $e) {
     error_log('google_callback PDO error: ' . $e->getMessage());
-    header('Location: ../pages/signin.php?error=server_error');
+    header('Location: ../user/signin.php?error=server_error');
     exit;
 }
 ?>

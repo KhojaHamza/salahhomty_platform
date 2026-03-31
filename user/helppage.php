@@ -19,8 +19,9 @@
     <a href="../index.php" class="btn-report">Report an issue</a>
     <a href="signin.php">Sign In</a>
     <a href="history.php">History</a>
-    
+    <a href="profil.php">profil</a>
     <a href="helppage.php" class="active">Help</a>
+
   </div>
 </nav>
 

@@ -10,7 +10,7 @@ if (isset($_SESSION['user_id'])) {
 
 // ── Uniquement POST ──
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header("Location: ../pages/signin.php");
+    header("Location: ../user/signin.php");
     exit;
 }
 
@@ -21,12 +21,12 @@ $password = isset($_POST['password']) ? trim($_POST['password']) : '';
 
 // ── Validation basique ──
 if (empty($email) || empty($password)) {
-    header("Location: ../pages/signin.php?error=champs_vides");
+    header("Location: ../user/signin.php?error=champs_vides");
     exit;
 }
 
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    header("Location: ../pages/signin.php?error=email_invalide");
+    header("Location: ../user/signin.php?error=email_invalide");
     exit;
 }
 
@@ -38,7 +38,7 @@ try {
 
     // ── Email introuvable ──
     if (!$user) {
-        header("Location: ../pages/signin.php?error=email_not_found");
+        header("Location: ../user/signin.php?error=email_not_found");
         exit;
     }
 
@@ -56,7 +56,7 @@ try {
     }
 
     if (!$passwordOk) {
-        header("Location: ../pages/signin.php?error=wrong_password");
+        header("Location: ../user/signin.php?error=wrong_password");
         exit;
     }
 
@@ -84,7 +84,7 @@ try {
 
 } catch (PDOException $e) {
     error_log('login.php PDO error: ' . $e->getMessage());
-    header("Location: ../pages/signin.php?error=server_error");
+    header("Location: ../user/signin.php?error=server_error");
     exit;
 }
 ?>

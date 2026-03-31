@@ -93,7 +93,7 @@ $offset  = ($page - 1) * $perPage;
 $totalQ = $pdo->prepare("SELECT COUNT(*) FROM reports r LEFT JOIN users u ON u.id=r.user_id WHERE $whereStr");
 $totalQ->execute($params);
 $total = (int)$totalQ->fetchColumn();
-$pages = ceil($total / $perPage);
+$user = ceil($total / $perPage);
 
 $reportsQ = $pdo->prepare("
     SELECT r.*, u.name AS citizen, ag.name AS agent_name,
@@ -417,7 +417,7 @@ tr:hover td{background:#fafafa}
       <div class="pagination">
         <span>Showing <?= min(($page-1)*$perPage+1,$total) ?>–<?= min($page*$perPage,$total) ?> of <?= $total ?></span>
         <div class="page-btns">
-          <?php for ($i=1;$i<=$pages;$i++): ?>
+          <?php for ($i=1;$i<=$user;$i++): ?>
           <a href="?<?= http_build_query(array_merge($_GET,['page'=>$i])) ?>" class="<?= $i==$page?'active':'' ?>"><?= $i ?></a>
           <?php endfor ?>
         </div>

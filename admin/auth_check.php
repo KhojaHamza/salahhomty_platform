@@ -4,7 +4,7 @@
 if (session_status() === PHP_SESSION_NONE) session_start();
 
 if (!isset($_SESSION['user_id'])) {
-    header('Location: ../pages/signin.php?redirect=admin');
+    header('Location: ../user/signin.php?redirect=admin');
     exit;
 }
 

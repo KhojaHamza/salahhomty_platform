@@ -292,7 +292,7 @@ session_destroy();
     </div>
 
     <!-- Buttons -->
-    <a href="../pages/signin.php" class="btn-primary">Sign in again →</a>
+    <a href="../user/signin.php" class="btn-primary">Sign in again →</a>
     <a href="../index.php"        class="btn-secondary">Go to homepage</a>
 
   </div>
@@ -308,7 +308,7 @@ session_destroy();
     counter.textContent = count;
     if (count <= 0) {
       clearInterval(timer);
-      window.location.href = '../pages/signin.php';
+      window.location.href = '../user/signin.php';
     }
   }, 1000);
 </script>

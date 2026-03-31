@@ -3,7 +3,7 @@ session_start();                        // ← une seule fois ici
 require '../config/database.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header("Location: ../pages/signup.php");
+    header("Location: ../user/signup.php");
     exit;
 }
 
@@ -14,29 +14,29 @@ $password         = trim($_POST['password']         ?? '');
 $confirm_password = trim($_POST['confirm_password'] ?? '');
 
 if (empty($name) || empty($email) || empty($password) || empty($confirm_password)) {
-    header("Location: ../pages/signup.php?error=Tous+les+champs+sont+requis");
+    header("Location: ../user/signup.php?error=Tous+les+champs+sont+requis");
     exit;
 }
 
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    header("Location: ../pages/signup.php?error=Format+email+invalide");
+    header("Location: ../user/signup.php?error=Format+email+invalide");
     exit;
 }
 
 if (strlen($password) < 8) {
-    header("Location: ../pages/signup.php?error=Mot+de+passe+minimum+8+caracteres");
+    header("Location: ../user/signup.php?error=Mot+de+passe+minimum+8+caracteres");
     exit;
 }
 
 if ($password !== $confirm_password) {
-    header("Location: ../pages/signup.php?error=Les+mots+de+passe+ne+correspondent+pas");
+    header("Location: ../user/signup.php?error=Les+mots+de+passe+ne+correspondent+pas");
     exit;
 }
 
 $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
 $stmt->execute([$email]);
 if ($stmt->fetch()) {
-    header("Location: ../pages/signup.php?error=Cet+email+est+deja+utilise");
+    header("Location: ../user/signup.php?error=Cet+email+est+deja+utilise");
     exit;
 }
 
@@ -46,7 +46,7 @@ $stmt = $pdo->prepare("INSERT INTO users (name, email, phone, password) VALUES (
 $result = $stmt->execute([$name, $email, $phone, $passwordHash]);
 
 if (!$result) {
-    header("Location: ../pages/signup.php?error=Erreur+creation+compte");
+    header("Location: ../user/signup.php?error=Erreur+creation+compte");
     exit;
 }
 

@@ -1,5 +1,5 @@
 <?php
-// pages/history.php
+// user/history.php
 session_start();
 
 require_once '../config/database.php';
@@ -370,6 +370,7 @@ function statusClass(string $s): string {
     <a href="../index.php" class="btn-report">Report a problem</a>
     <a href="history.php" class="active">History</a>
     <a href="helppage.php">Help</a>
+    <a href="profil.php">profil</a>
     <a href="../auth/logout.php">Logout</a>
   </div>
 </nav>
@@ -583,10 +584,10 @@ function statusClass(string $s): string {
       `Showing ${Math.min(start + 1, total)}–${Math.min(start + perPage, total)} of ${total} report${total !== 1 ? 's' : ''}`;
 
     // Page buttons
-    const pages = Math.ceil(total / perPage);
+    const user = Math.ceil(total / perPage);
     const btns  = document.getElementById('pageBtns');
     btns.innerHTML = '';
-    for (let i = 1; i <= pages; i++) {
+    for (let i = 1; i <= user; i++) {
       const b = document.createElement('button');
       b.textContent = i;
       if (i === currentPage) b.classList.add('active');

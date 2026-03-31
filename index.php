@@ -465,10 +465,11 @@ function timeAgo(string $datetime): string {
       <?php if (isset($_SESSION['user_id'])): ?>
         <a href="auth/logout.php" class="btn-signin">Logout</a>
       <?php else: ?>
-        <a href="pages/signin.php" class="btn-signin">Sign in</a>
+        <a href="user/signin.php" class="btn-signin">Sign in</a>
       <?php endif; ?>
-      <a href="pages/history.php">History</a>
-      <a href="pages/helppage.php">Help</a>
+      <a href="user/history.php">History</a>
+      <a href="user/helppage.php">Help</a>
+      <a href="user/profil.php">profil</a>
     </div>
   </nav>
 
@@ -638,7 +639,7 @@ function timeAgo(string $datetime): string {
                   <span class="recent__category">
                     <?= htmlspecialchars($r['status'] ?? 'Open') ?>
                   </span>
-                  <a href="pages/history.php" class="recent__title">
+                  <a href="user/history.php" class="recent__title">
                     <?= htmlspecialchars($desc) ?>
                   </a>
                   <time class="recent__time" datetime="<?= htmlspecialchars($r['created_at']) ?>">
