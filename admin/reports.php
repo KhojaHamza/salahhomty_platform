@@ -1,3 +1,4 @@
+//admin/reports.php
 <?php
 // admin/reports.php
 require_once 'auth_check.php';
@@ -429,41 +430,84 @@ tr:hover td{background:#fafafa}
 
 <!-- ═══ MODALS ═══ -->
 
-<!-- Detail / Status Update Modal -->
+
+<!-- ═══ DETAIL MODAL (avec commentaires) ═══ -->
+<!-- ═══ DETAIL MODAL ═══ -->
 <div class="modal-overlay" id="detailModal" onclick="if(event.target===this)this.classList.remove('open')">
-  <div class="modal">
+  <div class="modal" style="max-width:560px">
     <div class="modal-header">
       <h2 id="detailTitle">Report Detail</h2>
       <button class="modal-close" onclick="document.getElementById('detailModal').classList.remove('open')">✕</button>
     </div>
-    <div class="modal-body">
-      <div class="info-box" id="detailInfo"></div>
-      <div id="logSection"></div>
-      <form method="POST" action="reports.php">
-        <input type="hidden" name="action" value="update_status">
-        <input type="hidden" name="report_id" id="detail_report_id">
-        <div class="modal-field">
-          <label>Update Status</label>
-          <select name="status" id="detail_status">
-            <option value="Open">Open</option>
-            <option value="In progress">In progress</option>
-            <option value="Resolved">Resolved</option>
-            <option value="Transferred">Transferred</option>
-          </select>
+    <div class="modal-body" style="padding:0">
+
+      <!-- Tabs -->
+      <div style="display:flex;border-bottom:1px solid var(--border);background:var(--cream)">
+        <button id="tab-status" onclick="switchTab('status')"
+          style="flex:1;padding:13px;font-size:13px;font-weight:700;font-family:var(--font-h);
+                 border:none;background:none;cursor:pointer;color:var(--teal);
+                 border-bottom:2px solid var(--teal)">
+          Statut &amp; Info
+        </button>
+        <button id="tab-comments" onclick="switchTab('comments')"
+          style="flex:1;padding:13px;font-size:13px;font-weight:700;font-family:var(--font-h);
+                 border:none;background:none;cursor:pointer;color:var(--muted);
+                 border-bottom:2px solid transparent">
+          Commentaires <span id="cmtBadge" style="background:var(--teal);color:#fff;font-size:10px;padding:1px 6px;border-radius:100px;margin-left:4px">0</span>
+        </button>
+      </div>
+
+      <!-- TAB 1 : Status -->
+      <div id="panel-status" style="padding:22px">
+        <div class="info-box" id="detailInfo"></div>
+        <div id="logSection"></div>
+        <form method="POST" action="reports.php">
+          <input type="hidden" name="action" value="update_status">
+          <input type="hidden" name="report_id" id="detail_report_id">
+          <div class="modal-field">
+            <label>Update Status</label>
+            <select name="status" id="detail_status">
+              <option value="Open">Open</option>
+              <option value="In progress">In progress</option>
+              <option value="Resolved">Resolved</option>
+              <option value="Transferred">Transferred</option>
+            </select>
+          </div>
+          <div class="modal-field">
+            <label>Note (optional)</label>
+            <textarea name="note" placeholder="Add a note…"></textarea>
+          </div>
+          <div class="modal-footer" style="margin:0 -22px -22px">
+            <button type="button" class="btn" onclick="document.getElementById('detailModal').classList.remove('open')">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- TAB 2 : Comments -->
+      <div id="panel-comments" style="display:none">
+        <div id="adminCommentsList"
+          style="max-height:320px;overflow-y:auto;padding:16px 22px;display:flex;flex-direction:column;gap:12px">
         </div>
-        <div class="modal-field">
-          <label>Note (optional)</label>
-          <textarea name="note" placeholder="Add a note about this status change…"></textarea>
+        <div style="padding:14px 22px;border-top:1px solid var(--border);background:var(--cream)">
+          <div style="display:flex;gap:8px;align-items:flex-end">
+            <textarea id="adminCommentInput"
+              style="flex:1;padding:9px 12px;font-size:13.5px;font-family:var(--font-b);
+                     border:1.5px solid var(--border);border-radius:6px;outline:none;
+                     resize:none;min-height:38px;background:var(--white)"
+              placeholder="Écrire un commentaire…" rows="1"></textarea>
+            <button onclick="adminSendComment()"
+              style="padding:9px 18px;background:var(--teal);color:#fff;border:none;
+                     border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">
+              Envoyer
+            </button>
+          </div>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn" onclick="document.getElementById('detailModal').classList.remove('open')">Cancel</button>
-          <button type="submit" class="btn btn-primary">Save status</button>
-        </div>
-      </form>
+      </div>
+
     </div>
   </div>
 </div>
-
 <!-- Assign Agent Modal -->
 <div class="modal-overlay" id="assignModal" onclick="if(event.target===this)this.classList.remove('open')">
   <div class="modal">
@@ -534,15 +578,29 @@ tr:hover td{background:#fafafa}
   </div>
 </div>
 
+  ================================================================ -->
 <script>
-const statusLabels = {Open:'Open','In progress':'In progress',Resolved:'Resolved',Transferred:'Transferred',Overdue:'Overdue'};
+let _currentReportId = null;
+
+// ── Tab switching ──
+function switchTab(tab) {
+  document.getElementById('panel-status').style.display   = tab === 'status'   ? 'block' : 'none';
+  document.getElementById('panel-comments').style.display = tab === 'comments' ? 'block' : 'none';
+  document.getElementById('tab-status').style.color        = tab === 'status'   ? 'var(--teal)' : 'var(--muted)';
+  document.getElementById('tab-comments').style.color      = tab === 'comments' ? 'var(--teal)' : 'var(--muted)';
+  document.getElementById('tab-status').style.borderBottom   = tab === 'status'   ? '2px solid var(--teal)' : '2px solid transparent';
+  document.getElementById('tab-comments').style.borderBottom = tab === 'comments' ? '2px solid var(--teal)' : '2px solid transparent';
+  if (tab === 'comments') loadAdminComments();
+}
 
 function openDetailModal(r) {
+  _currentReportId = r.id;
+  switchTab('status');
+
   document.getElementById('detailTitle').textContent = 'Report #' + r.id;
   document.getElementById('detail_report_id').value  = r.id;
   document.getElementById('detail_status').value     = r.status;
 
-  // Info box
   document.getElementById('detailInfo').innerHTML =
     `<strong>${r.description || 'No description'}</strong>
      <div style="margin-top:6px;color:var(--muted);font-size:12px">
@@ -551,15 +609,16 @@ function openDetailModal(r) {
        Agent: ${r.agent_name||'Unassigned'}
      </div>`;
 
-  // Fetch logs
+  document.getElementById('cmtBadge').textContent = '…';
+
   fetch('api_logs.php?report_id=' + r.id)
-    .then(res=>res.json())
-    .then(logs=>{
-      if (!logs.length) { document.getElementById('logSection').innerHTML=''; return; }
+    .then(res => res.json())
+    .then(logs => {
+      if (!logs.length) { document.getElementById('logSection').innerHTML = ''; return; }
       document.getElementById('logSection').innerHTML =
         '<div style="font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:8px">History</div>'
         + '<div class="log-list">'
-        + logs.map(l=>`<div class="log-item">
+        + logs.map(l => `<div class="log-item">
             <div class="log-dot"></div>
             <div>
               <div style="font-weight:600">${l.old_status} → ${l.new_status}</div>
@@ -569,9 +628,84 @@ function openDetailModal(r) {
           </div>`).join('')
         + '</div>';
     })
-    .catch(()=>{ document.getElementById('logSection').innerHTML=''; });
+    .catch(() => { document.getElementById('logSection').innerHTML = ''; });
 
   document.getElementById('detailModal').classList.add('open');
+}
+
+// ── Load comments ──
+function loadAdminComments() {
+  if (!_currentReportId) return;
+  const list = document.getElementById('adminCommentsList');
+  list.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:13px;padding:20px">Chargement…</div>';
+
+  fetch('api_comments.php?report_id=' + _currentReportId)
+    .then(r => r.json())
+    .then(comments => {
+      document.getElementById('cmtBadge').textContent = comments.length;
+      if (!comments.length) {
+        list.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:13px;padding:24px">Aucun commentaire.</div>';
+        return;
+      }
+      list.innerHTML = comments.map(c => `
+        <div style="display:flex;gap:10px;align-items:flex-start" id="adm-cm-${c.id}">
+          <div style="width:32px;height:32px;border-radius:50%;background:${c.role==='admin'?'#1aaa96':'#374151'};
+               color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;
+               justify-content:center;flex-shrink:0">
+            ${(c.user_name||'A').charAt(0).toUpperCase()}
+          </div>
+          <div style="flex:1;min-width:0">
+            <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:3px;flex-wrap:wrap">
+              <span style="font-size:12px;font-weight:700;color:var(--ink)">${escH(c.user_name||'Anonyme')}</span>
+              ${c.role==='admin' ? '<span style="background:var(--teal-l);color:var(--teal-d);font-size:10px;font-weight:700;padding:1px 6px;border-radius:4px">Admin</span>' : ''}
+              <span style="font-size:11px;color:var(--muted)">${c.created_at}</span>
+              <button onclick="deleteAdminComment(${c.id})"
+                style="margin-left:auto;background:none;border:none;color:#fca5a5;font-size:11px;cursor:pointer">
+                ✕ Supprimer
+              </button>
+            </div>
+            <div style="font-size:13.5px;color:var(--ink3);line-height:1.5;word-break:break-word">
+              ${escH(c.content).replace(/\n/g,'<br>')}
+            </div>
+          </div>
+        </div>`).join('');
+    })
+    .catch(() => { list.innerHTML = '<div style="text-align:center;color:var(--red);font-size:13px;padding:20px">Erreur.</div>'; });
+}
+
+// ── Admin envoie un commentaire ──
+function adminSendComment() {
+  const input   = document.getElementById('adminCommentInput');
+  const content = input.value.trim();
+  if (!_currentReportId) { alert('Erreur: aucun rapport sélectionné.'); return; }
+  if (!content) return;
+
+  const fd = new FormData();
+  fd.append('report_id', _currentReportId);
+  fd.append('content', content);
+
+  fetch('../actions/submit_comment.php', { method: 'POST', body: fd })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) { input.value = ''; loadAdminComments(); }
+      else alert(data.error || 'Erreur.');
+    })
+    .catch(() => alert('Erreur réseau.'));
+}
+
+// ── Supprimer un commentaire ──
+function deleteAdminComment(commentId) {
+  if (!confirm('Supprimer ce commentaire ?')) return;
+  const fd = new FormData();
+  fd.append('id', commentId);
+  fetch('delete_comment.php', { method: 'POST', body: fd })
+    .then(r => r.json())
+    .then(data => { if (data.success) document.getElementById('adm-cm-'+commentId)?.remove(); })
+    .catch(() => alert('Erreur réseau.'));
+}
+
+function escH(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
 function openAssignModal(id, desc, currentAgent) {
@@ -589,7 +723,7 @@ function openTransferModal(id, desc) {
 }
 
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') document.querySelectorAll('.modal-overlay').forEach(m=>m.classList.remove('open'));
+  if (e.key === 'Escape') document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('open'));
 });
 </script>
 </body>
