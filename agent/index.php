@@ -1,7 +1,31 @@
 <?php
-require_once __DIR__ . '/includes/auth.php';
-$user = requireAgent();
-$init = initials($user['name']);
+session_start();
+
+// Vérifier authentification
+if (empty($_SESSION['user_id'])) {
+    header('Location: ../auth/login.php');
+    exit;
+}
+if (!in_array($_SESSION['user_role'], ['agent', 'admin'], true)) {
+    header('Location: ../auth/login.php?error=access_denied');
+    exit;
+}
+
+// Construire $user depuis la session
+$user = [
+    'id'         => $_SESSION['user_id'],
+    'name'       => $_SESSION['user_name'],
+    'email'      => $_SESSION['user_email'],
+    'role'       => $_SESSION['user_role'],
+    'phone'      => $_SESSION['user_phone'] ?? '',
+    'created_at' => $_SESSION['user_created_at'] ?? date('Y-m-d'),
+];
+$init = implode('', array_map(
+    fn($w) => mb_strtoupper(mb_substr($w, 0, 1)),
+    array_slice(explode(' ', trim($user['name'])), 0, 2)
+));
+
+function h($v) { return htmlspecialchars((string)($v ?? ''), ENT_QUOTES|ENT_SUBSTITUTE, 'UTF-8'); }
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -945,7 +969,7 @@ async function changePassword() {
 // ─── Logout ───────────────────────────────────────────────
 function confirmLogout() {
   if (confirm('Are you sure you want to sign out?')) {
-    window.location.href = 'logout.php';
+      window.location.href = '../auth/logout.php';
   }
 }
 

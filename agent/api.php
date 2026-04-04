@@ -1,20 +1,39 @@
 <?php
-/**
- * api.php — Central AJAX API for Agent Portal
- * All requests must be authenticated (agent or admin).
- */
-require_once __DIR__ . '/includes/auth.php';
-
+session_start();
 header('Content-Type: application/json');
 
-// Authenticate
-$user = currentUser();
-if (!$user || !in_array($user['role'], ['agent', 'admin'], true)) {
-    jsonResponse(false, 'Unauthorized', ['code' => 401]);
+require_once __DIR__ . '/../config/database.php';
+
+// ── Helpers ──────────────────────────────────────────────
+function h($v) { return htmlspecialchars((string)($v ?? ''), ENT_QUOTES|ENT_SUBSTITUTE, 'UTF-8'); }
+
+function jsonResponse(bool $success, string $message, array $data = []): never {
+    echo json_encode(['success' => $success, 'message' => $message, ...$data]);
+    exit;
 }
+
+function getDB(): PDO {
+    global $pdo;
+    return $pdo;
+}
+
+// ── Auth ─────────────────────────────────────────────────
+if (empty($_SESSION['user_id'])) {
+    jsonResponse(false, 'Unauthorized');
+}
+if (!in_array($_SESSION['user_role'], ['agent', 'admin'], true)) {
+    jsonResponse(false, 'Unauthorized');
+}
+
+$user = [
+    'id'   => $_SESSION['user_id'],
+    'name' => $_SESSION['user_name'],
+    'role' => $_SESSION['user_role'],
+];
 
 $action = $_GET['action'] ?? $_POST['action'] ?? '';
 
+// ── Ensuite tout le switch ($action) ... reste identique ──
 try {
     switch ($action) {
 
