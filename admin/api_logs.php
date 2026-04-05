@@ -17,3 +17,4 @@ $stmt = $pdo->prepare("
 ");
 $stmt->execute([':rid' => $report_id]);
 echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
+?>

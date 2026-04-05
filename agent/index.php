@@ -1,4 +1,5 @@
 <?php
+//agent/index.php
 session_start();
 
 // Vérifier authentification
@@ -81,7 +82,7 @@ function h($v) { return htmlspecialchars((string)($v ?? ''), ENT_QUOTES|ENT_SUBS
   .top-btn:hover{background:var(--accent-dark)}
 
   /* ─ CONTENT / PAGES ─────────────────────────────────── */
-  .content{padding:24px;flex:1;animation:fadeIn .25s ease}
+  .content{padding:24px;flex:1;}
   @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
   .page{display:none}
   .page.active{display:block}
@@ -293,14 +294,7 @@ function h($v) { return htmlspecialchars((string)($v ?? ''), ENT_QUOTES|ENT_SUBS
       <span class="nav-icon">📋</span> All Reports
       <span class="nav-badge" id="badge-total">—</span>
     </div>
-    <div class="nav-item" id="nav-open" onclick="showPage('reports'); applyFilter('pending')">
-      <span class="nav-icon">⏳</span> Open
-      <span class="nav-badge" id="badge-open">—</span>
-    </div>
-    <div class="nav-item" id="nav-progress" onclick="showPage('reports'); applyFilter('progress')">
-      <span class="nav-icon">🔄</span> In Progress
-      <span class="nav-badge" id="badge-progress">—</span>
-    </div>
+
     <div class="nav-section">Account</div>
     <div class="nav-item" id="nav-profile" onclick="showPage('profile')">
       <span class="nav-icon">👤</span> My Profile
@@ -572,8 +566,7 @@ async function loadStats() {
   document.getElementById('stat-resolved').textContent = s.resolved  ?? 0;
   document.getElementById('stat-overdue').textContent  = s.overdue   ?? 0;
   document.getElementById('badge-total').textContent   = s.total     ?? 0;
-  document.getElementById('badge-open').textContent    = s.open      ?? 0;
-  document.getElementById('badge-progress').textContent = s.in_progress ?? 0;
+
 }
 
 // ─── Dashboard Recent ─────────────────────────────────────
@@ -715,10 +708,20 @@ function applyFilter(f) {
     const el = document.getElementById('ftab-' + k);
     if (el) el.classList.toggle('active', k === f);
   });
-  ['nav-reports','nav-open','nav-progress'].forEach(id => document.getElementById(id)?.classList.remove('active'));
-  const navMap = { pending: 'nav-open', progress: 'nav-progress', all: 'nav-reports', resolved: 'nav-reports' };
-  document.getElementById(navMap[f] || 'nav-reports')?.classList.add('active');
-  showPage('reports');
+
+  const titleMap = { all: 'All Reports', pending: 'Open Reports', progress: 'In Progress', resolved: 'Resolved Reports' };
+  const titleEl = document.getElementById('reports-page-title');
+  if (titleEl) titleEl.textContent = titleMap[f] || 'Reports';
+
+  // Only call showPage if not already on reports
+  if (!document.getElementById('page-reports').classList.contains('active')) {
+    showPage('reports');
+  } else {
+    // Already on reports — just update nav highlight without re-triggering animation
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+    document.getElementById('nav-reports')?.classList.add('active');
+  }
+
   loadReports();
 }
 
@@ -828,7 +831,7 @@ async function openReport(id) {
         <label class="form-label">Status</label>
         <select class="form-control" id="m-status">
           <option value="Open" ${rep.status==='Open'?'selected':''}>⏳ Open</option>
-          <option value="In Progress" ${rep.status==='In Progress'?'selected':''}>🔄 In Progress</option>
+          <option value="In progress" ${rep.status==='In progress'?'selected':''}>🔄 In Progress</option>
           <option value="Resolved" ${rep.status==='Resolved'?'selected':''}>✅ Resolved</option>
           <option value="Closed" ${rep.status==='Closed'?'selected':''}>🔒 Closed</option>
         </select>
@@ -991,7 +994,7 @@ function esc(str) {
 function statusBadge(s) {
   const map = {
     'Open':        'st-open',
-    'In Progress': 'st-progress',
+    'In progress': 'st-progress',
     'Resolved':    'st-resolved',
     'Closed':      'st-resolved',
   };

@@ -1,4 +1,5 @@
 <?php
+//agent/api.php
 session_start();
 header('Content-Type: application/json');
 
@@ -42,12 +43,12 @@ try {
             $db = getDB();
             $stats = [];
             $row = $db->query("SELECT
-                COUNT(*) AS total,
-                SUM(status='Open') AS open,
-                SUM(status='In Progress') AS in_progress,
-                SUM(status='Resolved') AS resolved,
-                SUM(deadline IS NOT NULL AND deadline < NOW() AND status NOT IN ('Resolved','Closed')) AS overdue
-                FROM reports")->fetch();
+             COUNT(*) AS total,
+             SUM(status='Open') AS open,
+             SUM(status='In progress') AS in_progress,
+             SUM(status='Resolved') AS resolved,
+             SUM(deadline IS NOT NULL AND deadline < NOW() AND status NOT IN ('Resolved','Closed')) AS overdue
+             FROM reports")->fetch();
             jsonResponse(true, 'ok', ['stats' => $row]);
 
         // ── Recent reports for dashboard ─────────────────────────────────
@@ -58,7 +59,8 @@ try {
             $where  = '';
             $params = [];
             if ($filter !== 'all') {
-                $map = ['pending' => 'Open', 'progress' => 'In Progress', 'resolved' => 'Resolved'];
+                
+                $map = ['pending' => 'Open', 'progress' => 'In progress', 'resolved' => 'Resolved'];
                 if (isset($map[$filter])) {
                     $where  = 'WHERE r.status = ?';
                     $params = [$map[$filter]];
@@ -96,7 +98,7 @@ try {
             $params     = [];
 
             if ($filter !== 'all') {
-                $map = ['pending' => 'Open', 'progress' => 'In Progress', 'resolved' => 'Resolved'];
+                $map = ['pending' => 'Open', 'progress' => 'In progress', 'resolved' => 'Resolved'];
                 if (isset($map[$filter])) {
                     $conditions[] = 'r.status = ?';
                     $params[]     = $map[$filter];
@@ -184,7 +186,8 @@ try {
             $id      = (int)($_POST['id'] ?? 0);
             $status  = trim($_POST['status'] ?? '');
             $note    = trim($_POST['note'] ?? '');
-            $valid   = ['Open', 'In Progress', 'Resolved', 'Closed'];
+            $valid = ['Open', 'In progress', 'Resolved', 'Closed'];
+            
             if (!$id) jsonResponse(false, 'Invalid report ID.');
             if (!in_array($status, $valid, true)) jsonResponse(false, 'Invalid status value.');
 
