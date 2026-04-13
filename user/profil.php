@@ -283,9 +283,10 @@ $initials = strtoupper(mb_substr($user['name'] ?? 'U', 0, 1));
     <span class="nav-brand-text">Salah<span>Homty</span></span>
   </a>
   <div class="nav-links">
-    <a href="report.php">Report a problem</a>
+    <a href="../index.php">Report a problem</a>
     <a href="signin.php">Sign in</a>
     <a href="history.php">History</a>
+    <a href="services.php">Services</a>
     <a href="profile.php" class="active">Profile</a>
     <a href="helppage.php">Help</a>
   </div>

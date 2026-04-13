@@ -370,6 +370,7 @@ function statusClass(string $s): string {
     <a href="../index.php" class="btn-report">Report a problem</a>
     <a href="history.php" class="active">History</a>
     <a href="helppage.php">Help</a>
+    <a href="services.php">Services</a>
     <a href="profil.php">profil</a>
     <a href="../auth/logout.php">Logout</a>
   </div>

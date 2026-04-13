@@ -366,6 +366,7 @@ function timeAgo(string $datetime): string {
       <?php endif; ?>
       <a href="user/history.php">History</a>
       <a href="user/helppage.php">Help</a>
+      <a href="user/services.php">Services</a>
       <a href="user/profil.php">Profil</a>
     </div>
   </nav>

@@ -350,7 +350,8 @@ if (isset($_GET['success']) && $_GET['success'] === 'reset_sent') {
       <a href="../index.php" class="navbar__report-btn">Report a problem</a>
       <a href="signin.php" class="hide-mobile">Sign in</a>
       <a href="history.php" class="hide-mobile">History</a>
-      <a href="profil.php">profil</a>
+      <a href="profil.php">Profil</a>
+      <a href="services.php">Services</a>
       <a href="helppage.php" class="hide-mobile">Help</a>
       <a href="#" class="navbar__lang" aria-label="Language: English">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
