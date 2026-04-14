@@ -147,10 +147,20 @@ function statusClass(string $s): string {
       display: flex; align-items: flex-start; justify-content: space-between;
       margin-bottom: 32px; gap: 16px; flex-wrap: wrap;
     }
+   
     .page-header h1 {
-      font-family: var(--font-head); font-size: 28px; font-weight: 800;
-      color: var(--dark); letter-spacing: -.5px; margin-bottom: 4px;
+   font-family: var(--font-head);
+   font-size: 28px;
+   font-weight: 800;
+   color: var(--dark);
+   letter-spacing: -0.5px;
+   margin-bottom: 4px;
+
+   line-height: 1.2;              /* évite chevauchement */
+   overflow-wrap: break-word;     /* casse les mots longs */
+   white-space: normal;           /* autorise retour ligne */
     }
+    
     .page-header p { font-size: 14px; color: var(--muted); }
 
     .export-btn {
@@ -343,6 +353,26 @@ function statusClass(string $s): string {
     .modal-field { margin-bottom: 14px; }
     .modal-field label { display: block; font-size: 11px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
     .modal-field p { font-size: 14px; color: var(--dark); line-height: 1.6; }
+      .tab-btn {
+      font-size: 14px;
+      padding: 9px 20px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      color: var(--text-secondary);
+      border-bottom: 2.5px solid transparent;
+      margin-bottom: -1.5px;
+      font-family: inherit;
+      border-radius: 0;
+      transition: color .15s;
+    }
+    .tab-btn:hover { color: var(--text-primary); }
+    .tab-btn.active {
+      color: var(--navy);
+      border-bottom-color: var(--teal);
+      font-weight: 500;
+    }
+
 
     /* ── Responsive ── */
     @media (max-width: 900px) {
@@ -377,7 +407,13 @@ function statusClass(string $s): string {
 </nav>
 
 <!-- PAGE -->
-<div class="page">
+<main class="page">
+  <!-- Tabs -->
+  <div class="tabs">
+    <a href ="#" class="tab-btn active" >My reports </a>
+    <a href="servicerequests.php" class="tab-btn" > My service requests</a>
+  </div>
+  <br/>
 
   <!-- Header -->
   <div class="page-header">
@@ -475,8 +511,8 @@ function statusClass(string $s): string {
       <div class="page-btns" id="pageBtns"></div>
     </div>
   </div>
-
-</div>
+</main>
+  
 
 <!-- DETAIL MODAL -->
 <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
@@ -488,6 +524,7 @@ function statusClass(string $s): string {
     <div class="modal-body" id="modalBody"></div>
   </div>
 </div>
+
 
 <script>
   // ── Data from PHP ──

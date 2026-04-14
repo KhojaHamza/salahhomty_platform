@@ -2,7 +2,6 @@
 //agent/index.php
 session_start();
 
-// Vérifier authentification
 if (empty($_SESSION['user_id'])) {
     header('Location: ../auth/login.php');
     exit;
@@ -12,7 +11,6 @@ if (!in_array($_SESSION['user_role'], ['agent', 'admin'], true)) {
     exit;
 }
 
-// Construire $user depuis la session
 $user = [
     'id'         => $_SESSION['user_id'],
     'name'       => $_SESSION['user_name'],
@@ -33,7 +31,7 @@ function h($v) { return htmlspecialchars((string)($v ?? ''), ENT_QUOTES|ENT_SUBS
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Agent Portal — MuniPortal</title>
+<title>Dashboard — MuniPortal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="../assets/css/agent_dashboard.css">
@@ -50,7 +48,7 @@ function h($v) { return htmlspecialchars((string)($v ?? ''), ENT_QUOTES|ENT_SUBS
     </div>
   </div>
 
-  <div class="agent-card-sb" onclick="showPage('profile')">
+  <div class="agent-card-sb" onclick="window.location.href='profile.php'">
     <div class="avatar-sm"><?= h($init) ?></div>
     <div style="flex:1;min-width:0">
       <div class="agent-name-sb"><?= h($user['name']) ?></div>
@@ -61,17 +59,20 @@ function h($v) { return htmlspecialchars((string)($v ?? ''), ENT_QUOTES|ENT_SUBS
 
   <nav class="nav">
     <div class="nav-section">Main</div>
-    <div class="nav-item active" id="nav-dashboard" onclick="showPage('dashboard')">
+    <div class="nav-item active">
       <span class="nav-icon">📊</span> Dashboard
     </div>
-    <!-- FIX: utiliser applyFilter('all') au lieu de loadReports() directement -->
-    <div class="nav-item" id="nav-reports" onclick="showPage('reports'); applyFilter('all')">
+    <div class="nav-item" onclick="window.location.href='reports.php'">
       <span class="nav-icon">📋</span> All Reports
+    </div>
+    <div class="nav-item" onclick="window.location.href='citizenrequests.php'">
+      <span class="nav-icon">🙏</span> Citizen Requests
+    
       <span class="nav-badge" id="badge-total">—</span>
     </div>
 
     <div class="nav-section">Account</div>
-    <div class="nav-item" id="nav-profile" onclick="showPage('profile')">
+    <div class="nav-item" onclick="window.location.href='profile.php'">
       <span class="nav-icon">👤</span> My Profile
     </div>
   </nav>
@@ -86,35 +87,35 @@ function h($v) { return htmlspecialchars((string)($v ?? ''), ENT_QUOTES|ENT_SUBS
 <!-- ═══════════════ MAIN ═══════════════ -->
 <main class="main">
   <header class="topbar">
-    <div class="topbar-title" id="topbar-title">Dashboard</div>
+    <div class="topbar-title">Dashboard</div>
     <div class="search-box">
       <span style="color:var(--muted2);font-size:13px">🔍</span>
       <input type="text" id="search-input" placeholder="Search reports…" oninput="onSearchInput(this.value)"/>
     </div>
     <div style="display:flex;gap:8px">
-      <button class="top-btn" onclick="showPage('reports'); applyFilter('all')">📋 All Reports</button>
+      <button class="top-btn" onclick="window.location.href='reports.php'">📋 All Reports</button>
     </div>
   </header>
 
-  <!-- ─ DASHBOARD PAGE ─ -->
+  <!-- ─ DASHBOARD ─ -->
   <div class="content page active" id="page-dashboard">
     <div class="stats-grid">
-      <div class="stat-card s-default" onclick="showPage('reports'); applyFilter('all')">
+      <div class="stat-card s-default" onclick="window.location.href='reports.php?filter=all'">
         <div class="stat-label">Total</div>
         <div class="stat-value" id="stat-total">—</div>
         <div class="stat-sub">all reports</div>
       </div>
-      <div class="stat-card s-blue" onclick="showPage('reports'); applyFilter('pending')">
+      <div class="stat-card s-blue" onclick="window.location.href='reports.php?filter=pending'">
         <div class="stat-label">Open</div>
         <div class="stat-value" id="stat-open">—</div>
         <div class="stat-sub">awaiting action</div>
       </div>
-      <div class="stat-card s-yellow" onclick="showPage('reports'); applyFilter('progress')">
+      <div class="stat-card s-yellow" onclick="window.location.href='reports.php?filter=progress'">
         <div class="stat-label">In Progress</div>
         <div class="stat-value" id="stat-progress">—</div>
         <div class="stat-sub">being handled</div>
       </div>
-      <div class="stat-card s-green" onclick="showPage('reports'); applyFilter('resolved')">
+      <div class="stat-card s-green" onclick="window.location.href='reports.php?filter=resolved'">
         <div class="stat-label">Resolved</div>
         <div class="stat-value" id="stat-resolved">—</div>
         <div class="stat-sub">closed</div>
@@ -130,7 +131,7 @@ function h($v) { return htmlspecialchars((string)($v ?? ''), ENT_QUOTES|ENT_SUBS
       <div class="panel">
         <div class="panel-head">
           <div class="panel-title">Recent Reports</div>
-          <span class="panel-link" onclick="showPage('reports'); applyFilter('all')">View all →</span>
+          <span class="panel-link" onclick="window.location.href='reports.php'">View all →</span>
         </div>
         <div class="filter-tabs">
           <div class="ftab active" onclick="loadDashRecent('all',this)">All</div>
@@ -163,114 +164,6 @@ function h($v) { return htmlspecialchars((string)($v ?? ''), ENT_QUOTES|ENT_SUBS
     </div>
   </div>
 
-  <!-- ─ REPORTS PAGE ─ -->
-  <div class="content page" id="page-reports">
-    <div class="panel">
-      <div class="panel-head">
-        <div class="panel-title" id="reports-page-title">All Reports</div>
-        <!-- FIX: bouton refresh -->
-        <button class="btn btn-ghost btn-sm" onclick="loadReports(currentPage)" title="Refresh">🔄 Refresh</button>
-      </div>
-      <div class="filter-tabs">
-        <div class="ftab active" id="ftab-all"      onclick="applyFilter('all')">All</div>
-        <div class="ftab"        id="ftab-pending"  onclick="applyFilter('pending')">Open</div>
-        <div class="ftab"        id="ftab-progress" onclick="applyFilter('progress')">In Progress</div>
-        <div class="ftab"        id="ftab-resolved" onclick="applyFilter('resolved')">Resolved</div>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>#ID</th>
-              <th>Description</th>
-              <th>Citizen</th>
-              <th>Category</th>
-              <th>Agent</th>
-              <th>Status</th>
-              <th>Date</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="full-tbody">
-            <tr class="loading-row"><td colspan="8"><span class="spinner dark"></span> Loading…</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="pagination">
-        <span id="full-count">—</span>
-        <div class="page-btns" id="page-btns"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ─ PROFILE PAGE ─ -->
-  <div class="content page" id="page-profile">
-    <div class="profile-hero">
-      <div class="avatar-lg"><?= h($init) ?></div>
-      <div>
-        <div class="profile-name" id="p-name"><?= h($user['name']) ?></div>
-        <div class="profile-role-badge">🛡 <?= ucfirst(h($user['role'])) ?></div>
-      </div>
-    </div>
-    <div class="profile-grid">
-      <div class="panel">
-        <div class="panel-head">
-          <div class="panel-title">Personal Information</div>
-          <button class="btn btn-primary btn-sm" onclick="saveProfile()">💾 Save</button>
-        </div>
-        <div style="padding:20px 22px">
-          <div class="form-group">
-            <label class="form-label">Full Name</label>
-            <input class="form-control" id="prof-name" value="<?= h($user['name']) ?>"/>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Email Address</label>
-            <input class="form-control" value="<?= h($user['email']) ?>" disabled/>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Phone</label>
-            <input class="form-control" id="prof-phone" value="<?= h($user['phone'] ?? '') ?>"/>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Role</label>
-            <input class="form-control" value="<?= ucfirst(h($user['role'])) ?>" disabled/>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Member Since</label>
-            <input class="form-control" value="<?= h(date('d/m/Y', strtotime($user['created_at']))) ?>" disabled/>
-          </div>
-        </div>
-      </div>
-      <div class="panel">
-        <div class="panel-head"><div class="panel-title">Change Password</div></div>
-        <div style="padding:20px 22px">
-          <div class="form-group">
-            <label class="form-label">Current Password</label>
-            <input class="form-control" type="password" id="pw-current" placeholder="••••••••" autocomplete="current-password"/>
-          </div>
-          <div class="form-group">
-            <label class="form-label">New Password</label>
-            <input class="form-control" type="password" id="pw-new" placeholder="••••••••" autocomplete="new-password"/>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Confirm New Password</label>
-            <input class="form-control" type="password" id="pw-confirm" placeholder="••••••••" autocomplete="new-password"/>
-          </div>
-          <button class="btn btn-primary" onclick="changePassword()">🔐 Update Password</button>
-          <div style="margin-top:20px;padding-top:18px;border-top:1px solid var(--border)">
-            <div style="font-size:12px;font-weight:600;margin-bottom:10px">Active Sessions</div>
-            <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;padding:10px 12px;background:var(--bg);border-radius:8px;border:1px solid var(--border)">
-              <div>
-                <div style="font-weight:600">Current Browser</div>
-                <div style="font-size:11px;color:var(--muted);margin-top:2px">Active session</div>
-              </div>
-              <span style="color:var(--green);font-size:11px;font-weight:700">● Active</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 </main>
 
 <!-- ═══════════════ REPORT DETAIL MODAL ═══════════════ -->
