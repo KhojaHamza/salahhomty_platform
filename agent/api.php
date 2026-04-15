@@ -41,6 +41,237 @@ if ($action === '') {
 
 try {
     switch ($action) {
+        // ── Liste des citizen requests ─────────────────────────────
+case 'citizen_requests': {
+    $db     = getDB();
+    $filter = $_GET['filter'] ?? 'all';
+    $search = trim($_GET['search'] ?? '');
+    $page   = max(1, (int)($_GET['page'] ?? 1));
+    $perPage = 8;
+    $offset  = ($page - 1) * $perPage;
+
+    $conditions = [];
+    $params     = [];
+
+    // Un agent ne voit que les demandes liées à son service
+    if ($user['role'] === 'agent') {
+        $conditions[] = 's.id = (SELECT service_id FROM users WHERE id = ?)';
+        $params[]     = $user['id'];
+    }
+
+    if ($filter !== 'all') {
+        $conditions[] = 'sr.status = ?';
+        $params[]     = $filter;
+    }
+
+    if ($search !== '') {
+        $conditions[] = '(u.name LIKE ? OR u.email LIKE ? OR s.name LIKE ?)';
+        $like = '%' . addcslashes($search, '%_\\') . '%';
+        $params[] = $like;
+        $params[] = $like;
+        $params[] = $like;
+    }
+
+    $where = $conditions ? 'WHERE ' . implode(' AND ', $conditions) : '';
+
+    // Count
+    $cntParams = $params;
+    $cntStmt = $db->prepare("
+        SELECT COUNT(*) AS cnt
+        FROM service_requests sr
+        JOIN services s ON s.id = sr.service_id
+        JOIN users    u ON u.id = sr.user_id
+        $where
+    ");
+    $cntStmt->execute($cntParams);
+    $total = (int)($cntStmt->fetch()['cnt'] ?? 0);
+    $pages = max(1, (int)ceil($total / $perPage));
+
+    // Stats globales
+    $statsParams = $user['role'] === 'agent'
+        ? [$user['id']]
+        : [];
+    $statsWhere = $user['role'] === 'agent'
+        ? 'WHERE s.id = (SELECT service_id FROM users WHERE id = ?)'
+        : '';
+    $statsStmt = $db->prepare("
+        SELECT
+            COUNT(*)                            AS total,
+            SUM(sr.status = 'pending')          AS pending,
+            SUM(sr.status = 'in_progress')      AS in_progress,
+            SUM(sr.status = 'approved')         AS approved,
+            SUM(sr.status = 'rejected')         AS rejected
+        FROM service_requests sr
+        JOIN services s ON s.id = sr.service_id
+        $statsWhere
+    ");
+    $statsStmt->execute($statsParams);
+    $stats = $statsStmt->fetch();
+    foreach ($stats as $k => $v) $stats[$k] = (int)($v ?? 0);
+
+    // Data paginée
+    $dataParams = array_merge($params, []);
+    $stmt = $db->prepare("
+        SELECT
+            sr.id,
+            sr.message,
+            sr.status,
+            sr.agent_note,
+            sr.created_at,
+            sr.handled_at,
+            u.id    AS citizen_id,
+            u.name  AS citizen_name,
+            u.email AS citizen_email,
+            u.phone AS citizen_phone,
+            s.id    AS service_id,
+            s.name  AS service_name,
+            s.category AS service_category,
+            ag.name AS agent_name,
+            (SELECT COUNT(*) FROM request_messages rm WHERE rm.request_id = sr.id) AS msg_count
+        FROM service_requests sr
+        JOIN services s ON s.id = sr.service_id
+        JOIN users    u ON u.id = sr.user_id
+        LEFT JOIN users ag ON ag.id = sr.handled_by
+        $where
+        ORDER BY
+            CASE sr.status WHEN 'pending' THEN 0 WHEN 'in_progress' THEN 1 ELSE 2 END,
+            sr.created_at DESC
+        LIMIT $perPage OFFSET $offset
+    ");
+    $stmt->execute($dataParams);
+
+    jsonResponse(true, 'ok', [
+        'requests' => $stmt->fetchAll(),
+        'stats'    => $stats,
+        'total'    => $total,
+        'page'     => $page,
+        'pages'    => $pages,
+    ]);
+}
+
+// ── Détail d'une request ───────────────────────────────────
+case 'request_detail': {
+    $id = (int)($_GET['id'] ?? 0);
+    if (!$id) jsonResponse(false, 'Invalid ID.');
+    $db = getDB();
+
+    $stmt = $db->prepare("
+        SELECT
+            sr.*,
+            u.name  AS citizen_name,
+            u.email AS citizen_email,
+            u.phone AS citizen_phone,
+            s.name  AS service_name,
+            s.category AS service_category,
+            ag.name AS agent_name
+        FROM service_requests sr
+        JOIN services s ON s.id = sr.service_id
+        JOIN users    u ON u.id = sr.user_id
+        LEFT JOIN users ag ON ag.id = sr.handled_by
+        WHERE sr.id = ?
+    ");
+    $stmt->execute([$id]);
+    $req = $stmt->fetch();
+    if (!$req) jsonResponse(false, 'Request not found.');
+
+    // Messages liés
+    $msgStmt = $db->prepare("
+        SELECT rm.*, u.name AS sender_name, u.role AS sender_role
+        FROM request_messages rm
+        JOIN users u ON u.id = rm.sender_id
+        WHERE rm.request_id = ?
+        ORDER BY rm.created_at ASC
+    ");
+    $msgStmt->execute([$id]);
+
+    jsonResponse(true, 'ok', [
+        'request'  => $req,
+        'messages' => $msgStmt->fetchAll(),
+    ]);
+}
+
+// ── Accepter une request ───────────────────────────────────
+case 'accept_request': {
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') jsonResponse(false, 'POST required.');
+    $id   = (int)($_POST['id'] ?? 0);
+    $note = trim($_POST['note'] ?? '');
+    if (!$id) jsonResponse(false, 'Invalid ID.');
+
+    $db  = getDB();
+    $chk = $db->prepare("SELECT status FROM service_requests WHERE id = ?");
+    $chk->execute([$id]);
+    $row = $chk->fetch();
+    if (!$row) jsonResponse(false, 'Request not found.');
+    if ($row['status'] === 'approved') jsonResponse(false, 'Already approved.');
+
+    $db->prepare("
+        UPDATE service_requests
+        SET status = 'approved',
+            handled_by = ?,
+            handled_at = NOW(),
+            agent_note = ?
+        WHERE id = ?
+    ")->execute([$user['id'], $note ?: null, $id]);
+
+    jsonResponse(true, 'Request approved successfully.');
+}
+
+// ── Rejeter une request ────────────────────────────────────
+case 'reject_request': {
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') jsonResponse(false, 'POST required.');
+    $id   = (int)($_POST['id'] ?? 0);
+    $note = trim($_POST['note'] ?? '');
+    if (!$id) jsonResponse(false, 'Invalid ID.');
+
+    $db  = getDB();
+    $chk = $db->prepare("SELECT status FROM service_requests WHERE id = ?");
+    $chk->execute([$id]);
+    $row = $chk->fetch();
+    if (!$row) jsonResponse(false, 'Request not found.');
+    if ($row['status'] === 'rejected') jsonResponse(false, 'Already rejected.');
+
+    $db->prepare("
+        UPDATE service_requests
+        SET status = 'rejected',
+            handled_by = ?,
+            handled_at = NOW(),
+            agent_note = ?
+        WHERE id = ?
+    ")->execute([$user['id'], $note ?: null, $id]);
+
+    jsonResponse(true, 'Request rejected.');
+}
+
+// ── Envoyer un message à un citoyen ───────────────────────
+case 'send_message': {
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') jsonResponse(false, 'POST required.');
+    $requestId = (int)($_POST['request_id'] ?? 0);
+    $content   = trim($_POST['content'] ?? '');
+    if (!$requestId) jsonResponse(false, 'Invalid request ID.');
+    if ($content === '') jsonResponse(false, 'Message cannot be empty.');
+    if (mb_strlen($content) > 2000) jsonResponse(false, 'Message too long.');
+
+    $db  = getDB();
+    $chk = $db->prepare("SELECT id FROM service_requests WHERE id = ?");
+    $chk->execute([$requestId]);
+    if (!$chk->fetch()) jsonResponse(false, 'Request not found.');
+
+    $db->prepare("
+        INSERT INTO request_messages (request_id, sender_id, content)
+        VALUES (?, ?, ?)
+    ")->execute([$requestId, $user['id'], $content]);
+
+    $newId = (int)$db->lastInsertId();
+    $msg = $db->prepare("
+        SELECT rm.*, u.name AS sender_name, u.role AS sender_role
+        FROM request_messages rm
+        JOIN users u ON u.id = rm.sender_id
+        WHERE rm.id = ?
+    ");
+    $msg->execute([$newId]);
+
+    jsonResponse(true, 'Message sent.', ['message' => $msg->fetch()]);
+}
 
         // ── Dashboard stats ───────────────────────────────
         case 'stats': {
