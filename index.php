@@ -1,4 +1,33 @@
 <?php
+// Messages annulation via email
+$cancelError   = $_GET['cancel_error']   ?? '';
+$cancelSuccess = $_GET['cancel_success'] ?? '';
+?>
+
+<?php if ($cancelSuccess): ?>
+<div style="background:#eaf3de; color:#3b6d11; padding:14px 20px;
+            border-radius:8px; margin:16px 0; text-align:center;">
+    Votre demande a été annulée avec succès.
+</div>
+<?php endif; ?>
+
+<?php if ($cancelError === 'expired'): ?>
+<div style="background:#fcebeb; color:#a32d2d; padding:14px 20px;
+            border-radius:8px; margin:16px 0; text-align:center;">
+    Ce lien d'annulation a expiré (délai de 2 heures dépassé).
+</div>
+<?php elseif ($cancelError === 'used'): ?>
+<div style="background:#faeeda; color:#633806; padding:14px 20px;
+            border-radius:8px; margin:16px 0; text-align:center;">
+    Cette demande a déjà été annulée.
+</div>
+<?php elseif ($cancelError === 'invalid'): ?>
+<div style="background:#fcebeb; color:#a32d2d; padding:14px 20px;
+            border-radius:8px; margin:16px 0; text-align:center;">
+    Lien invalide ou introuvable.
+</div>
+<?php endif; ?>
+<?php
 session_start();
 require_once 'config/database.php';
 

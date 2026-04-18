@@ -202,6 +202,24 @@ if ($action === 'cancel') {
         SET status = 'cancelled', updated_at = NOW()
         WHERE id = ? AND user_id = ?
     ")->execute([$requestId, $userId]);
+    // ── BF8 : Envoyer email de confirmation d'annulation ─────── AJOUTER ───
+    $userStmt = $pdo->prepare("SELECT id, name, email FROM users WHERE id = ?");
+    $userStmt->execute([$userId]);
+    $user = $userStmt->fetch(PDO::FETCH_ASSOC);
+
+    $reqStmt = $pdo->prepare("
+        SELECT sr.id, s.name AS title
+        FROM service_requests sr
+        INNER JOIN services s ON s.id = sr.service_id
+        WHERE sr.id = ?
+    ");
+    $reqStmt->execute([$requestId]);
+    $serviceObj = $reqStmt->fetch(PDO::FETCH_ASSOC);
+
+    require_once __DIR__ . '/../includes/EmailService.php';
+    (new EmailService())->send('CANCEL_SERVICE', $user, $serviceObj);
+    // ─────────────────────────────────────────────────────────────────────────
+
 
     echo json_encode([
         'success' => true,

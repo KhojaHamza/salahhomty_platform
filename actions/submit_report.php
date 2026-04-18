@@ -50,6 +50,22 @@ try {
         $lng   ?: null,
         $imagePath,
     ]);
+    // ── BF8 : Envoyer email de notification ──────────────────── AJOUTER ───
+    $reportId = (int)$pdo->lastInsertId();
+
+    $userStmt = $pdo->prepare("SELECT id, name, email FROM users WHERE id = ?");
+    $userStmt->execute([$_SESSION['user_id']]);
+    $user = $userStmt->fetch(PDO::FETCH_ASSOC);
+
+    $report = [
+        'id'    => $reportId,
+        'title' => $title,
+    ];
+
+    require_once __DIR__ . '/../includes/EmailService.php';
+    (new EmailService())->send('NEW_CLAIM', $user, $report);
+    // ─────────────────────────────────────────────────────────────────────────
+
 
     header('Location: ../?success=1');
     exit;
