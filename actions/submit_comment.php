@@ -40,7 +40,8 @@ $comment_id = $pdo->lastInsertId();
 
 // ── Return comment with user name for live display ──
 $row = $pdo->prepare("
-    SELECT c.id, c.content, c.created_at, u.name AS user_name
+    SELECT c.id, c.content, c.created_at, u.name AS user_name,
+        u.name AS user_name, u.role
     FROM comments c
     LEFT JOIN users u ON u.id = c.user_id
     WHERE c.id = ?

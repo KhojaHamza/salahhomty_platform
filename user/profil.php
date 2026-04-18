@@ -277,7 +277,11 @@ $initials = strtoupper(mb_substr($user['name'] ?? 'U', 0, 1));
 <!-- NAVBAR -->
 <nav>
   <a href="../index.php" class="nav-brand">
-    <div class="nav-logo-icon">
+    <div class="navbar__logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+        </svg>
+    </div>
       <svg viewBox="0 0 24 24"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
     </div>
     <span class="nav-brand-text">Salah<span>Homty</span></span>
