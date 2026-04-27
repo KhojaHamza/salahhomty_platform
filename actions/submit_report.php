@@ -11,9 +11,11 @@ if (!isset($_SESSION['user_id'])) {
 // ── Validate ──
 $title = trim($_POST['title']    ?? '');
 $desc  = trim($_POST['description'] ?? '');
-$lat   = $_POST['latitude']  ?? '';
-$lng   = $_POST['longitude'] ?? '';
 
+
+$lat      = $_POST['latitude']  ?? '';
+$lng      = $_POST['longitude'] ?? '';
+$location = trim($_POST['location'] ?? '');
 if (!$title) {
     header('Location: ../?error=Titre+obligatoire.');
     exit;
@@ -38,18 +40,19 @@ if (!empty($_FILES['image']['name'])) {
 
 // ── Insert ──
 try {
-    $stmt = $pdo->prepare("
-        INSERT INTO reports (user_id, title, description, latitude, longitude, image, status)
-        VALUES (?, ?, ?, ?, ?, ?, 'Open')
-    ");
-    $stmt->execute([
-        $_SESSION['user_id'],
-        $title,
-        $desc  ?: null,
-        $lat   ?: null,
-        $lng   ?: null,
-        $imagePath,
-    ]);
+$stmt = $pdo->prepare("
+    INSERT INTO reports (user_id, title, description, location, latitude, longitude, image, status)
+    VALUES (?, ?, ?, ?, ?, ?, ?, 'Open')
+");
+$stmt->execute([
+    $_SESSION['user_id'],
+    $title,
+    $desc     ?: null,
+    $location ?: null,
+    $lat      ?: null,
+    $lng      ?: null,
+    $imagePath,
+]);
     // ── BF8 : Envoyer email de notification ──────────────────── AJOUTER ───
     $reportId = (int)$pdo->lastInsertId();
 

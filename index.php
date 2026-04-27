@@ -394,9 +394,10 @@ function timeAgo(string $datetime): string {
         <a href="user/signin.php" class="btn-signin">Sign in</a>
       <?php endif; ?>
       <a href="user/history.php">History</a>
-      <a href="user/helppage.php">Help</a>
+      
       <a href="user/services.php">Services</a>
       <a href="user/profil.php">Profil</a>
+      <a href="user/helppage.php">Help</a>
     </div>
   </nav>
 
@@ -717,34 +718,49 @@ function timeAgo(string $datetime): string {
     dropzone.addEventListener('drop', e => {
       e.preventDefault(); dropzone.style.background='';
       const file = e.dataTransfer.files[0];
-      if (file) { const dt = new DataTransfer(); dt.items.add(file); fileInput.files = dt.files; dropzoneText.innerHTML = `<strong>${file.name}</strong><br><span style="font-size:12px;opacity:.8">Prêt à envoyer</span>`; }
+      if (file) { const dt = new DataTransfer(); dt.items.add(file); fileInput.files = dt.files; dropzoneText.innerHTML = `<strong>${file.name}</strong><br><span style="font-size:12px;color:#16a34a;font-weight:600;">✔ Prêt à envoyer</span>`;}
     });
     fileInput.addEventListener('change', function() {
-      if (this.files.length) dropzoneText.innerHTML = `<strong>${this.files[0].name}</strong><br><span style="font-size:12px;opacity:.8">Prêt à envoyer</span>`;
+      if (this.files.length) dropzoneText.innerHTML = `<strong>${this.files[0].name}</strong><br><span style="font-size:12px;color:#16a34a;font-weight:600;">✔ Prêt à envoyer</span>`;
     });
 
     // ── Geolocation ──
-    const locationBtn = document.getElementById('use-location-btn');
-    const latInput    = document.getElementById('latitude');
-    const lngInput    = document.getElementById('longitude');
-    locationBtn.addEventListener('click', () => {
-      if (!navigator.geolocation) { alert('Géolocalisation non supportée.'); return; }
-      locationBtn.textContent = 'Localisation…';
-      navigator.geolocation.getCurrentPosition(
-        pos => {
-          const { latitude, longitude } = pos.coords;
-          latInput.value = latitude.toFixed(6);
-          lngInput.value = longitude.toFixed(6);
-          document.getElementById('location-input').value = `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
-          locationBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg> Position détectée ✔`;
-        },
-        () => {
-          alert('Impossible de récupérer votre position.');
-          locationBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg> Utiliser ma position actuelle`;
-        }
-      );
-    });
+   // ── Geolocation ──
+const locationBtn = document.getElementById('use-location-btn');
+const latInput    = document.getElementById('latitude');
+const lngInput    = document.getElementById('longitude');
 
+locationBtn.addEventListener('click', () => {
+  if (!navigator.geolocation) { alert('Géolocalisation non supportée.'); return; }
+  locationBtn.textContent = 'Localisation…';
+
+  navigator.geolocation.getCurrentPosition(
+    async pos => {
+      const { latitude, longitude } = pos.coords;
+      latInput.value = latitude.toFixed(6);
+      lngInput.value = longitude.toFixed(6);
+
+      try {
+        const res  = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&accept-language=fr`
+        );
+        const data = await res.json();
+        const addr = data.address;
+        const ville = addr.city || addr.town || addr.village || addr.county || '';
+        const rue   = addr.road ? addr.road + ', ' : '';
+        document.getElementById('location-input').value = rue + ville;
+      } catch {
+        document.getElementById('location-input').value = `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
+      }
+
+      locationBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg> Position détectée ✔`;
+    },
+    () => {
+      alert('Impossible de récupérer votre position.');
+      locationBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg> Utiliser ma position actuelle`;
+    }
+  );
+});
     // ── Toggle comments panel ──
     function toggleComments(reportId) {
       const item = document.getElementById('report-item-' + reportId);

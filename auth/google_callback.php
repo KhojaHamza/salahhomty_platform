@@ -5,8 +5,8 @@ session_start();
 require_once '../config/database.php';
 
 // Same credentials as google_oauth.php
-define('GOOGLE_CLIENT_ID',     'YOUR_GOOGLE_CLIENT_ID');
-define('GOOGLE_CLIENT_SECRET', 'YOUR_GOOGLE_CLIENT_SECRET');
+define('GOOGLE_CLIENT_ID',     '***REMOVED***');
+define('GOOGLE_CLIENT_SECRET', '***REMOVED***');
 define('GOOGLE_REDIRECT_URI',  'http://localhost/salahhomty_platform/auth/google_callback.php');
 
 // ── CSRF check ──

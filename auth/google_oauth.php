@@ -14,8 +14,8 @@
 session_start();
 
 // ── Your Google OAuth credentials ──
-define('GOOGLE_CLIENT_ID',     'YOUR_GOOGLE_CLIENT_ID');      // ← replace
-define('GOOGLE_CLIENT_SECRET', 'YOUR_GOOGLE_CLIENT_SECRET'); // ← replace
+define('GOOGLE_CLIENT_ID',     '***REMOVED***');      // ← replace
+define('GOOGLE_CLIENT_SECRET', '***REMOVED***'); // ← replace
 define('GOOGLE_REDIRECT_URI',  'http://localhost/salahhomty_platform/auth/google_callback.php');
 
 // CSRF protection: store a random state in session
